@@ -141,6 +141,47 @@ def createMatrices(sentences, word2Idx, label2Idx, case2Idx, char2Idx):
     return dataset
 
 
+
+# returns matrix with 1 entry = list of 4 elements:
+# word indices, case indices, character indices, label indices
+def createMatrix(sentences, word2Idx,case2Idx, char2Idx):
+    unknownIdx = word2Idx['UNKNOWN_TOKEN']
+    paddingIdx = word2Idx['PADDING_TOKEN']
+
+    dataset = []
+
+    wordCount = 0
+    unknownWordCount = 0
+
+    for sentence in sentences:
+        wordIndices = []
+        caseIndices = []
+        charIndices = []
+        labelIndices = []
+
+        for word, char, label in sentence:
+            wordCount += 1
+            if word in word2Idx:
+                wordIdx = word2Idx[word]
+            elif word.lower() in word2Idx:
+                wordIdx = word2Idx[word.lower()]
+            else:
+                wordIdx = unknownIdx
+                unknownWordCount += 1
+            charIdx = []
+            for x in char:
+                charIdx.append(char2Idx[x])
+            # Get the label and map to int
+            wordIndices.append(wordIdx)
+            caseIndices.append(getCasing(word, case2Idx))
+            charIndices.append(charIdx)
+
+        dataset.append([wordIndices, caseIndices, charIndices, labelIndices])
+
+    return dataset
+
+
+
 def iterate_minibatches(dataset, batch_len):
     start = 0
     for i in batch_len:
